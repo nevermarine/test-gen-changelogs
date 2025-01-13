@@ -1,78 +1,104 @@
 name: Milestone Changelog
-description: Re-generates changelog for given milestone
+
+# Description of the workflow
+description: Re-generates changelog for a given milestone
+
 inputs:
   milestone:
     description: Milestone object containing number and title
     required: true
   token:
-    description: Github token
+    description: GitHub token
     required: true
+
 runs:
   using: "composite"
   steps:
     - name: Parse input
       id: args
-      shell: bash
-      run: |
-        echo "milestone_title=${{ fromJSON(inputs.milestone).title }}" >> $GITHUB_OUTPUT
-        echo "milestone_number=${{ fromJSON(inputs.milestone).number }}" >> $GITHUB_OUTPUT
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const milestone = JSON.parse(inputs.milestone);
+          core.setOutput("milestone_title", milestone.title);
+          core.setOutput("milestone_number", milestone.number);
+        inputs:
+          milestone: ${{ inputs.milestone }}
 
     - name: Collect Changelog
       id: changelog
-      uses: deckhouse/changelog-action@v2
+      uses: actions/github-script@v6
       with:
-        token: ${{ inputs.token }}
-        repo: ${{ github.repository }}
-        milestone: ${{ steps.args.outputs.milestone_title }}
-        # section:forced_impact_level
-        allowed_sections: |
-          api
-          vm
-          vmop
-          vmbda
-          vmclass
-          vmip
-          vmipl
-          vdsnapshot
-          vmsnapshot
-          vmrestore
-          disks
-          vd
-          images
-          vi
-          cvi
-          core
-          api-service
-          vm-route-forge
-          kubevirt
-          kube-api-rewriter
-          cdi
-          dvcr
-          module
-          observability
+        script: |
+          const allowedSections = [
+            "api",
+            "vm",
+            "vmop",
+            "vmbda",
+            "vmclass",
+            "vmip",
+            "vmipl",
+            "vdsnapshot",
+            "vmsnapshot",
+            "vmrestore",
+            "disks",
+            "vd",
+            "images",
+            "vi",
+            "cvi",
+            "core",
+            "api-service",
+            "vm-route-forge",
+            "kubevirt",
+            "kube-api-rewriter",
+            "cdi",
+            "dvcr",
+            "module",
+            "observability"
+          ];
 
-    # Patch-version YAML changelog
-    - name: Write Changelog YAML
-      id: yaml_file
-      shell: bash
-      run: |
-        mkdir -p ./CHANGELOG
-        filename='./CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.yml'
-        cat > "$filename" <<"EOF"
-        ${{ steps.changelog.outputs.release_yaml }}
-        EOF
+          const milestoneNumber = inputs.milestone_number;
+          const token = inputs.token;
+          const octokit = github.getOctokit(token);
 
-    # Cumulative markdown changelog
-    - name: Write Changelog Markdown
-      id: md_file
-      shell: bash
-      run: |
-        filename='./CHANGELOG/CHANGELOG-${{ steps.changelog.outputs.minor_version }}.md'
-        cat > "$filename" <<"EOF"
-        ${{ steps.changelog.outputs.branch_markdown }}
-        EOF
+          const { data: commits } = await octokit.rest.repos.listCommits({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: milestoneNumber
+          });
 
-    # Patch-version markdown changelog + malformed and impact digest
+          const changelogCommits = commits
+            .map(commit => commit.commit.message)
+            .map(message => {
+              const match = message.match(/^(?<type>\w+)\((?<scope>[^)]+)\): (?<subject>.+)$/);
+              if (!match) return null;
+
+              const { type, scope, subject } = match.groups;
+              if ((type === "feat" || type === "fix") && allowedSections.includes(scope)) {
+                return `- **${scope}**: ${subject}`;
+              }
+              return null;
+            })
+            .filter(Boolean);
+
+          const changelogMarkdown = [
+            `# Changelog for Milestone: ${inputs.milestone_title}`,
+            "",
+            ...changelogCommits
+          ].join("\n");
+
+          const fs = require("fs");
+          const filename = `./CHANGELOG/CHANGELOG-${inputs.milestone_title}.md`;
+          fs.mkdirSync("./CHANGELOG", { recursive: true });
+          fs.writeFileSync(filename, changelogMarkdown);
+
+          console.log(`Generated changelog for milestone ${inputs.milestone_title} with filtered commits.`);
+
+        inputs:
+          milestone_title: ${{ steps.args.outputs.milestone_title }}
+          milestone_number: ${{ steps.args.outputs.milestone_number }}
+          token: ${{ inputs.token }}
+
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3.10.1
       with:
@@ -85,9 +111,9 @@ runs:
         milestone: ${{ steps.args.outputs.milestone_number }}
         title: Changelog ${{ steps.args.outputs.milestone_title }}
         body: |
-          ${{ steps.changelog.outputs.release_markdown }}
+          The changelog for milestone **${{ steps.args.outputs.milestone_title }}** has been generated.
 
-          For more information, see the [changelog](https://github.com/deckhouse/virtualization/blob/main/CHANGELOG/CHANGELOG-${{ steps.changelog.outputs.minor_version }}.md) and minor version [release changes](https://github.com/deckhouse/virtualization/releases/tag/${{ steps.changelog.outputs.minor_version }}.0).
+          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.md).
         labels: changelog, auto, status/backport
         token: ${{ inputs.token }}
         delete-branch: true
