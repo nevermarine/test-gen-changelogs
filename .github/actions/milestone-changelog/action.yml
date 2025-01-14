@@ -32,8 +32,8 @@ runs:
       id: changelog
       uses: actions/github-script@v6
       env:
-        milestone_title: ${{ inputs.milestone_title }}
-        milestone_number: ${{ inputs.milestone_number }}
+        milestone_title: ${{ steps.args.outputs.milestone_title }}
+        milestone_number: ${{ steps.args.outputs.milestone_number }}
       with:
         github-token: ${{ inputs.token }}
         script: |
