@@ -22,15 +22,14 @@ runs:
           const milestone = JSON.parse(inputs.milestone);
           core.setOutput("milestone_title", milestone.title);
           core.setOutput("milestone_number", milestone.number);
-        inputs:
-          milestone: ${{ inputs.milestone }}
 
     - name: Collect Changelog
       id: changelog
       uses: actions/github-script@v6
       with:
+        github-token: ${{ inputs.token }}
         script: |
-          const allowedSections = [
+          const scopes = new Set([
             "api",
             "vm",
             "vmop",
@@ -55,49 +54,47 @@ runs:
             "dvcr",
             "module",
             "observability"
-          ];
+          ]);
+          
+          const types = new Set(["feat", "fix"]);
 
-          const milestoneNumber = inputs.milestone_number;
-          const token = inputs.token;
-          const octokit = github.getOctokit(token);
 
-          const { data: commits } = await octokit.rest.repos.listCommits({
+          const { data: prs } = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            sha: milestoneNumber
+            per_page: 100,
           });
 
-          const changelogCommits = commits
-            .map(commit => commit.commit.message)
-            .map(message => {
-              const match = message.match(/^(?<type>\w+)\((?<scope>[^)]+)\): (?<subject>.+)$/);
-              if (!match) return null;
+          let result = '';
+          prs.forEach(pr => {
+              if (pr.milestone === referenceMilestone) {
+                  const title = pr.title.trim();
+                  
+                  const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
+                  
+                  if (match) {
+                      const type = match[1];
+                      const scopeString = match[2];
+                      const subject = match[3];
 
-              const { type, scope, subject } = match.groups;
-              if ((type === "feat" || type === "fix") && allowedSections.includes(scope)) {
-                return `- **${scope}**: ${subject}`;
+                      // Parse the scopes into an array and check if they all belong to the provided Set
+                      const scopesInTitle = scopeString.split(',').map(scope => scope.trim());
+                      const validScope = scopesInTitle.every(scope => scopes.has(scope));
+                      
+                      // Check if the type is valid
+                      const validType = types.has(type);
+                      
+                      // If both type and scope are valid, append to the result string
+                      if (validType && validScope) {
+                        result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n`;
+                      }
+                  }
               }
-              return null;
-            })
-            .filter(Boolean);
+          });
+          const filename = `CHANGELOG-${referenceMilestone}.md`;
+          fs.writeFileSync(filename, result.trim());
+          console.log(`Generated changelog for milestone ${steps.args.outputs.milestone_title} with filtered commits.`);
 
-          const changelogMarkdown = [
-            `# Changelog for Milestone: ${inputs.milestone_title}`,
-            "",
-            ...changelogCommits
-          ].join("\n");
-
-          const fs = require("fs");
-          const filename = `./CHANGELOG/CHANGELOG-${inputs.milestone_title}.md`;
-          fs.mkdirSync("./CHANGELOG", { recursive: true });
-          fs.writeFileSync(filename, changelogMarkdown);
-
-          console.log(`Generated changelog for milestone ${inputs.milestone_title} with filtered commits.`);
-
-        inputs:
-          milestone_title: ${{ steps.args.outputs.milestone_title }}
-          milestone_number: ${{ steps.args.outputs.milestone_number }}
-          token: ${{ inputs.token }}
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3.10.1
