@@ -17,9 +17,11 @@ runs:
     - name: Parse input
       id: args
       uses: actions/github-script@v6
+      env:
+        milestone: ${{ inputs.milestone }}
       with:
         script: |
-          const inputs = ${{ fromJSON(inputs) }};
+          const inputs = JSON.parse(process.env.milestone);
           core.setOutput("milestone_title", inputs.milestone.title);
           core.setOutput("milestone_number", inputs.milestone.number);
           console.log("milestone: " + milestone);
