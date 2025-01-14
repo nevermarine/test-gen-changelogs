@@ -19,9 +19,9 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const milestone = JSON.stringify(core.getInput('milestone'));
-          core.setOutput("milestone_title", milestone.title);
-          core.setOutput("milestone_number", milestone.number);
+          const inputs = ${{ toJSON(inputs) }};
+          core.setOutput("milestone_title", inputs.milestone.title);
+          core.setOutput("milestone_number", inputs.milestone.number);
           console.log("milestone: " + milestone);
           console.log("milestone_title: " + milestone.title);
           console.log("milestone_number: " + milestone.number);
