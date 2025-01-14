@@ -19,7 +19,7 @@ runs:
       uses: actions/github-script@v6
       with:
         script: |
-          const inputs = ${{ toJSON(inputs) }};
+          const inputs = ${{ fromJSON(inputs) }};
           core.setOutput("milestone_title", inputs.milestone.title);
           core.setOutput("milestone_number", inputs.milestone.number);
           console.log("milestone: " + milestone);
