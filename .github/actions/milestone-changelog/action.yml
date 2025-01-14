@@ -64,7 +64,7 @@ runs:
           
           const types = new Set(["feat", "fix"]);
           const milestoneTitle = process.env.milestone_title;
-          const milestoneNum = process.env.milestone_number;
+          const milestoneNum = parseInt(process.env.milestone_number);
           console.log(`milestoneTitle: ${milestoneTitle}`);
           console.log(`milestoneNum: ${milestoneNum}`);
 
@@ -76,7 +76,7 @@ runs:
 
           let result = '';
           prs.forEach(pr => {
-              if (pr.milestone.number == milestoneNum) {
+              if (pr.milestone.number === milestoneNum) {
                 console.log(`PR with milestone: ${JSON.stringify(pr)}`);
                 const title = pr.title.trim();
                 
