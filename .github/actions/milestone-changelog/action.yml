@@ -76,7 +76,7 @@ runs:
 
           let result = '';
           prs.forEach(pr => {
-              console.log(`PR: ${pr}`);
+              console.log(`PR: ${JSON.stringify(pr)}`);
               if (pr.milestone === milestoneNum) {
                   const title = pr.title.trim();
                   
