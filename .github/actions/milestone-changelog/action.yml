@@ -57,7 +57,8 @@ runs:
           ]);
           
           const types = new Set(["feat", "fix"]);
-
+          const milestoneTitle = core.getInput('milestone_title');
+          const milestoneNum = core.getInput('milestone_number');
 
           const { data: prs } = await github.rest.pulls.list({
             owner: context.repo.owner,
@@ -67,7 +68,7 @@ runs:
 
           let result = '';
           prs.forEach(pr => {
-              if (pr.milestone === steps.args.outputs.milestone_number) {
+              if (pr.milestone === milestoneNum) {
                   const title = pr.title.trim();
                   
                   const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
@@ -91,26 +92,26 @@ runs:
                   }
               }
           });
-          const filename = `CHANGELOG-${steps.args.outputs.milestone_title}.md`;
+          const filename = `CHANGELOG-${milestoneTitle}.md`;
           fs.writeFileSync(filename, result.trim());
-          console.log(`Generated changelog for milestone ${steps.args.outputs.milestone_title} with filtered commits.`);
+          console.log(`Generated changelog for milestone ${milestoneTitle} with filtered commits.`);
 
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3.10.1
       with:
         commit-message: |
-          Re-generate changelog ${{ steps.args.outputs.milestone_title }}
+          Re-generate changelog ${{ milestoneTitle }}
 
           Signed-off-by: deckhouse-BOaTswain <89150800+deckhouse-boatswain@users.noreply.github.com>
         base: main
-        branch: changelog/${{ steps.args.outputs.milestone_title }}
-        milestone: ${{ steps.args.outputs.milestone_number }}
-        title: Changelog ${{ steps.args.outputs.milestone_title }}
+        branch: changelog/${{ milestoneTitle }}
+        milestone: ${{ milestoneNum }}
+        title: Changelog ${{ milestoneTitle }}
         body: |
-          The changelog for milestone **${{ steps.args.outputs.milestone_title }}** has been generated.
+          The changelog for milestone **${{ milestoneTitle }}** has been generated.
 
-          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.md).
+          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ milestoneTitle }}.md).
         labels: changelog, auto, status/backport
         token: ${{ inputs.token }}
         delete-branch: true
