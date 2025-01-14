@@ -101,17 +101,17 @@ runs:
       uses: peter-evans/create-pull-request@v3.10.1
       with:
         commit-message: |
-          Re-generate changelog ${{ milestoneTitle }}
+          Re-generate changelog ${{ steps.args.outputs.milestone_title }}
 
           Signed-off-by: deckhouse-BOaTswain <89150800+deckhouse-boatswain@users.noreply.github.com>
         base: main
-        branch: changelog/${{ milestoneTitle }}
+        branch: changelog/${{ steps.args.outputs.milestone_title }}
         milestone: ${{ milestoneNum }}
-        title: Changelog ${{ milestoneTitle }}
+        title: Changelog ${{ steps.args.outputs.milestone_title }}
         body: |
-          The changelog for milestone **${{ milestoneTitle }}** has been generated.
+          The changelog for milestone **${{ steps.args.outputs.milestone_title }}** has been generated.
 
-          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ milestoneTitle }}.md).
+          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.md).
         labels: changelog, auto, status/backport
         token: ${{ inputs.token }}
         delete-branch: true
