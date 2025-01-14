@@ -31,6 +31,9 @@ runs:
     - name: Collect Changelog
       id: changelog
       uses: actions/github-script@v6
+      env:
+        milestone_title: ${{ inputs.milestone_title }}
+        milestone_number: ${{ inputs.milestone_number }}
       with:
         github-token: ${{ inputs.token }}
         script: |
@@ -63,8 +66,8 @@ runs:
           ]);
           
           const types = new Set(["feat", "fix"]);
-          const milestoneTitle = core.getInput('milestone_title');
-          const milestoneNum = core.getInput('milestone_number');
+          const milestoneTitle = process.env.milestone_title;
+          const milestoneNum = process.env.milestone_number;
           console.log(`milestoneTitle: ${milestoneTitle}`);
           console.log(`milestoneNum: ${milestoneNum}`);
 
