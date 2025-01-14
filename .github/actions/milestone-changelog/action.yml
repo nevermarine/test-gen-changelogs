@@ -106,7 +106,7 @@ runs:
           Signed-off-by: deckhouse-BOaTswain <89150800+deckhouse-boatswain@users.noreply.github.com>
         base: main
         branch: changelog/${{ steps.args.outputs.milestone_title }}
-        milestone: ${{ milestoneNum }}
+        milestone: ${{ steps.args.outputs.milestone_number }}
         title: Changelog ${{ steps.args.outputs.milestone_title }}
         body: |
           The changelog for milestone **${{ steps.args.outputs.milestone_title }}** has been generated.
