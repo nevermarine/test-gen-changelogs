@@ -24,9 +24,6 @@ runs:
           const milestone = JSON.parse(process.env.milestone);
           core.setOutput("milestone_title", milestone.title);
           core.setOutput("milestone_number", milestone.number);
-          // console.log("milestone: " + milestone);
-          // console.log("milestone_title: " + milestone.title);
-          // console.log("milestone_number: " + milestone.number);
 
     - name: Collect Changelog
       id: changelog
@@ -85,6 +82,7 @@ runs:
                   const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
                   
                   if (match) {
+                      console.log(`Match: ${type}: ${scopeString}: ${subject}`);
                       const type = match[1];
                       const scopeString = match[2];
                       const subject = match[3];
