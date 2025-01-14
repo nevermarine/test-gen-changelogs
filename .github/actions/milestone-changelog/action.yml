@@ -22,6 +22,9 @@ runs:
           const milestone = core.getInput('milestone');
           core.setOutput("milestone_title", milestone.title);
           core.setOutput("milestone_number", milestone.number);
+          console.log("milestone: " + milestone);
+          console.log("milestone_title: " + milestone.title);
+          console.log("milestone_number: " + milestone.number);
 
     - name: Collect Changelog
       id: changelog
@@ -60,6 +63,8 @@ runs:
           const types = new Set(["feat", "fix"]);
           const milestoneTitle = core.getInput('milestone_title');
           const milestoneNum = core.getInput('milestone_number');
+          console.log(`milestoneTitle: ${milestoneTitle}`);
+          console.log(`milestoneNum: ${milestoneNum}`);
 
           const { data: prs } = await github.rest.pulls.list({
             owner: context.repo.owner,
