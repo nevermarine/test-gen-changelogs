@@ -76,29 +76,29 @@ runs:
 
           let result = '';
           prs.forEach(pr => {
-              console.log(`PR: ${JSON.stringify(pr)}`);
               if (pr.milestone.number === milestoneNum) {
-                  const title = pr.title.trim();
-                  
-                  const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
-                  
-                  if (match) {
-                      console.log(`Match: ${type}: ${scopeString}: ${subject}`);
-                      const type = match[1];
-                      const scopeString = match[2];
-                      const subject = match[3];
+                console.log(`PR with milestone: ${JSON.stringify(pr)}`);
+                const title = pr.title.trim();
+                
+                const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
+                
+                if (match) {
+                    console.log(`Match: ${type}: ${scopeString}: ${subject}`);
+                    const type = match[1];
+                    const scopeString = match[2];
+                    const subject = match[3];
 
-                      // Parse the scopes into an array and check if they all belong to the provided Set
-                      const scopesInTitle = scopeString.split(',').map(scope => scope.trim());
-                      const validScope = scopesInTitle.every(scope => scopes.has(scope));
-                      
-                      // Check if the type is valid
-                      const validType = types.has(type);
-                      
-                      // If both type and scope are valid, append to the result string
-                      if (validType && validScope) {
-                        result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n`;
-                      }
+                    // Parse the scopes into an array and check if they all belong to the provided Set
+                    const scopesInTitle = scopeString.split(',').map(scope => scope.trim());
+                    const validScope = scopesInTitle.every(scope => scopes.has(scope));
+                    
+                    // Check if the type is valid
+                    const validType = types.has(type);
+                    
+                    // If both type and scope are valid, append to the result string
+                    if (validType && validScope) {
+                      result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n`;
+                    }
                   }
               }
           });
