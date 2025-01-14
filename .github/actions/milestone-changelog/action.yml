@@ -22,6 +22,7 @@ runs:
       with:
         script: |
           const inputs = JSON.parse(process.env.milestone);
+          console.log(inputs);
           core.setOutput("milestone_title", inputs.milestone.title);
           core.setOutput("milestone_number", inputs.milestone.number);
           console.log("milestone: " + milestone);
