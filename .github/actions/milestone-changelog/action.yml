@@ -67,7 +67,7 @@ runs:
 
           let result = '';
           prs.forEach(pr => {
-              if (pr.milestone === referenceMilestone) {
+              if (pr.milestone === steps.args.outputs.milestone_number) {
                   const title = pr.title.trim();
                   
                   const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
@@ -91,7 +91,7 @@ runs:
                   }
               }
           });
-          const filename = `CHANGELOG-${referenceMilestone}.md`;
+          const filename = `CHANGELOG-${steps.args.outputs.milestone_title}.md`;
           fs.writeFileSync(filename, result.trim());
           console.log(`Generated changelog for milestone ${steps.args.outputs.milestone_title} with filtered commits.`);
 
