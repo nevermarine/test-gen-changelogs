@@ -24,9 +24,9 @@ runs:
           const milestone = JSON.parse(process.env.milestone);
           core.setOutput("milestone_title", milestone.title);
           core.setOutput("milestone_number", milestone.number);
-          # console.log("milestone: " + milestone);
-          # console.log("milestone_title: " + milestone.title);
-          # console.log("milestone_number: " + milestone.number);
+          // console.log("milestone: " + milestone);
+          // console.log("milestone_title: " + milestone.title);
+          // console.log("milestone_number: " + milestone.number);
 
     - name: Collect Changelog
       id: changelog
