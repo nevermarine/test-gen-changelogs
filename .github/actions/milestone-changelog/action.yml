@@ -29,6 +29,7 @@ runs:
       with:
         github-token: ${{ inputs.token }}
         script: |
+          const fs = require('fs');
           const scopes = new Set([
             "api",
             "vm",
