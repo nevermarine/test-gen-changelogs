@@ -21,13 +21,12 @@ runs:
         milestone: ${{ inputs.milestone }}
       with:
         script: |
-          const inputs = JSON.parse(process.env.milestone);
-          console.log(inputs);
-          core.setOutput("milestone_title", inputs.milestone.title);
-          core.setOutput("milestone_number", inputs.milestone.number);
-          console.log("milestone: " + milestone);
-          console.log("milestone_title: " + milestone.title);
-          console.log("milestone_number: " + milestone.number);
+          const milestone = JSON.parse(process.env.milestone);
+          core.setOutput("milestone_title", milestone.title);
+          core.setOutput("milestone_number", milestone.number);
+          # console.log("milestone: " + milestone);
+          # console.log("milestone_title: " + milestone.title);
+          # console.log("milestone_number: " + milestone.number);
 
     - name: Collect Changelog
       id: changelog
