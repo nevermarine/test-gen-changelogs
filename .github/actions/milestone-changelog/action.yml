@@ -75,6 +75,7 @@ runs:
           });
 
           let result = '';
+          let type, scopeString, subject;
           prs.forEach(pr => {
               if (pr.milestone.number === milestoneNum) {
                 console.log(`PR with milestone: ${JSON.stringify(pr)}`);
@@ -84,9 +85,9 @@ runs:
                 
                 if (match) {
                     console.log(`Match: ${type}: ${scopeString}: ${subject}`);
-                    const type = match[1];
-                    const scopeString = match[2];
-                    const subject = match[3];
+                    type = match[1];
+                    scopeString = match[2];
+                    subject = match[3];
 
                     // Parse the scopes into an array and check if they all belong to the provided Set
                     const scopesInTitle = scopeString.split(',').map(scope => scope.trim());
