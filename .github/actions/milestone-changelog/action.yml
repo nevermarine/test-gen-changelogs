@@ -78,8 +78,8 @@ runs:
           let type, scopeString, subject;
           prs.forEach(pr => {
               if (pr.milestone.number === milestoneNum) {
-                console.log(`PR with milestone: ${JSON.stringify(pr)}`);
                 const title = pr.title.trim();
+                console.log(`PR with milestone: ${title}`);
                 
                 const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
                 
