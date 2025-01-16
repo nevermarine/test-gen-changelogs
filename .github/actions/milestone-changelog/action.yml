@@ -73,7 +73,7 @@ runs:
             repo: context.repo.repo,
             per_page: 100,
           });
-          console.log(`PRs: ${JSON.stringify(prs, null, 2)}`);
+          console.log(`number of prs: ${prs.length}`);
 
           let result = '';
           let type, scopeString, subject;
