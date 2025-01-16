@@ -76,7 +76,7 @@ runs:
           });
           console.log(`number of prs: ${prs.length}`);
 
-          let result = '`# Changelog ${milestoneTitle}\n\n`';
+          let result = `# Changelog ${milestoneTitle}\n\n`;
           let features = '## Features\n\n';
           let fixes = '## Fixes\n\n';
           let type, scopeString, subject;
