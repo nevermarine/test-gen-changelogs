@@ -76,7 +76,9 @@ runs:
           });
           console.log(`number of prs: ${prs.length}`);
 
-          let result = '';
+          let result = '`# Changelog ${milestoneTitle}\n\n`';
+          let features = '## Features\n\n';
+          let fixes = '## Fixes\n\n';
           let type, scopeString, subject;
           prs.forEach(pr => {
               if (pr.milestone.number === milestoneNum) {
@@ -100,12 +102,18 @@ runs:
                     
                     // If both type and scope are valid, append to the result string
                     if (validType && validScope) {
-                      result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n\n`;
+                      string = `  - **[${scopeString}]** ${subject} [#${pr.number}](${pr.html_url})\n`;
+                      if (type === 'feat') {
+                        features += string;
+                      } else if (type === 'fix') {
+                        fixes += string;
+                      }
                     }
                   }
               }
           });
           const filename = `CHANGELOG-${milestoneTitle}.md`;
+          result += features + fixes;
           fs.writeFileSync(filename, result.trim());
           console.log(`Generated changelog for milestone ${milestoneTitle} with filtered commits.`);
 
