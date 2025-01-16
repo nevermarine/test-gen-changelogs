@@ -112,7 +112,7 @@ runs:
                   }
               }
           });
-          const filename = `CHANGELOG-${milestoneTitle}.md`;
+          const filename = `CHANGELOG/CHANGELOG-${milestoneTitle}.md`;
           result += features + fixes;
           fs.writeFileSync(filename, result.trim());
           console.log(`Generated changelog for milestone ${milestoneTitle} with filtered commits.`);
