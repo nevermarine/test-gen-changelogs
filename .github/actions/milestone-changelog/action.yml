@@ -100,7 +100,7 @@ runs:
                     
                     // If both type and scope are valid, append to the result string
                     if (validType && validScope) {
-                      result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n`;
+                      result += `[pr${pr.number}](${pr.html_url}): ${type}(${scopeString}): ${subject}\n\n`;
                     }
                   }
               }
