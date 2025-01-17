@@ -45,7 +45,13 @@ echo "Branch $branch_name has been pushed and published."
 git checkout main
 
 echo "Creating a pull request..."
-gh pr create --title "fix(core): add file $branch_name" --body "Automatically created pull request." --base main --head "$branch_name"
+gh pr create --title "fix(core): add file $branch_name" --body "Automatic fix
+
+```changes
+section: core
+type: fix
+summary: add made up fix
+```" --base main --head "$branch_name"
 check_error "Failed to create pull request."
 
 echo "Pull request created for branch $branch_name."

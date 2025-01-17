@@ -1,123 +1,78 @@
 name: Milestone Changelog
-
-# Description of the workflow
-description: Re-generates changelog for a given milestone
-
+description: Re-generates changelog for given milestone
 inputs:
   milestone:
     description: Milestone object containing number and title
     required: true
   token:
-    description: GitHub token
+    description: Github token
     required: true
-
 runs:
   using: "composite"
   steps:
     - name: Parse input
       id: args
-      uses: actions/github-script@v6
-      env:
-        milestone: ${{ inputs.milestone }}
-      with:
-        script: |
-          const milestone = JSON.parse(process.env.milestone);
-          core.setOutput("milestone_title", milestone.title);
-          core.setOutput("milestone_number", milestone.number);
+      shell: bash
+      run: |
+        echo "milestone_title=${{ fromJSON(inputs.milestone).title }}" >> $GITHUB_OUTPUT
+        echo "milestone_number=${{ fromJSON(inputs.milestone).number }}" >> $GITHUB_OUTPUT
 
     - name: Collect Changelog
       id: changelog
-      uses: actions/github-script@v6
-      env:
-        milestone_title: ${{ steps.args.outputs.milestone_title }}
-        milestone_number: ${{ steps.args.outputs.milestone_number }}
+      uses: deckhouse/changelog-action@v2
       with:
-        github-token: ${{ inputs.token }}
-        script: |
-          const fs = require('fs');
-          const scopes = new Set([
-            "api",
-            "vm",
-            "vmop",
-            "vmbda",
-            "vmclass",
-            "vmip",
-            "vmipl",
-            "vdsnapshot",
-            "vmsnapshot",
-            "vmrestore",
-            "disks",
-            "vd",
-            "images",
-            "vi",
-            "cvi",
-            "core",
-            "api-service",
-            "vm-route-forge",
-            "kubevirt",
-            "kube-api-rewriter",
-            "cdi",
-            "dvcr",
-            "module",
-            "observability"
-          ]);
-          
-          const types = new Set(["feat", "fix"]);
-          const milestoneTitle = process.env.milestone_title;
-          const milestoneNum = parseInt(process.env.milestone_number);
-          console.log(`milestoneTitle: ${milestoneTitle}`);
-          console.log(`milestoneNum: ${milestoneNum}`);
+        token: ${{ inputs.token }}
+        repo: ${{ github.repository }}
+        milestone: ${{ steps.args.outputs.milestone_title }}
+        # section:forced_impact_level
+        allowed_sections: |
+          api
+          vm
+          vmop
+          vmbda
+          vmclass
+          vmip
+          vmipl
+          vdsnapshot
+          vmsnapshot
+          vmrestore
+          disks
+          vd
+          images
+          vi
+          cvi
+          core
+          api-service
+          vm-route-forge
+          kubevirt
+          kube-api-rewriter
+          cdi
+          dvcr
+          module
+          observability
 
-          const { data: prs } = await github.rest.pulls.list({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: "all",
-            per_page: 100,
-          });
-          console.log(`number of prs: ${prs.length}`);
+    # Patch-version YAML changelog
+    - name: Write Changelog YAML
+      id: yaml_file
+      shell: bash
+      run: |
+        mkdir -p ./CHANGELOG
+        filename='./CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.yml'
+        cat > "$filename" <<"EOF"
+        ${{ steps.changelog.outputs.release_yaml }}
+        EOF
 
-          let result = `# Changelog ${milestoneTitle}\n\n`;
-          let features = '## Features\n\n';
-          let fixes = '## Fixes\n\n';
-          let type, scopeString, subject;
-          prs.forEach(pr => {
-              if (pr.milestone.number === milestoneNum) {
-                const title = pr.title.trim();
-                console.log(`PR with milestone: ${title}`);
-                
-                const match = title.match(/^([a-zA-Z]+)\(([^)]*)\): (.*)$/);
-                
-                if (match) {
-                    console.log(`Match: ${type}: ${scopeString}: ${subject}`);
-                    type = match[1];
-                    scopeString = match[2];
-                    subject = match[3];
+    # Cumulative markdown changelog
+    - name: Write Changelog Markdown
+      id: md_file
+      shell: bash
+      run: |
+        filename='./CHANGELOG/CHANGELOG-${{ steps.changelog.outputs.minor_version }}.md'
+        cat > "$filename" <<"EOF"
+        ${{ steps.changelog.outputs.branch_markdown }}
+        EOF
 
-                    // Parse the scopes into an array and check if they all belong to the provided Set
-                    const scopesInTitle = scopeString.split(',').map(scope => scope.trim());
-                    const validScope = scopesInTitle.every(scope => scopes.has(scope));
-                    
-                    // Check if the type is valid
-                    const validType = types.has(type);
-                    
-                    // If both type and scope are valid, append to the result string
-                    if (validType && validScope) {
-                      string = `  - **[${scopeString}]** ${subject} [#${pr.number}](${pr.html_url})\n`;
-                      if (type === 'feat') {
-                        features += string;
-                      } else if (type === 'fix') {
-                        fixes += string;
-                      }
-                    }
-                  }
-              }
-          });
-          const filename = `CHANGELOG/CHANGELOG-${milestoneTitle}.md`;
-          result += features + fixes;
-          fs.writeFileSync(filename, result.trim());
-          console.log(`Generated changelog for milestone ${milestoneTitle} with filtered commits.`);
-
-
+    # Patch-version markdown changelog + malformed and impact digest
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3.10.1
       with:
@@ -130,9 +85,9 @@ runs:
         milestone: ${{ steps.args.outputs.milestone_number }}
         title: Changelog ${{ steps.args.outputs.milestone_title }}
         body: |
-          The changelog for milestone **${{ steps.args.outputs.milestone_title }}** has been generated.
+          ${{ steps.changelog.outputs.release_markdown }}
 
-          For details, see the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG/CHANGELOG-${{ steps.args.outputs.milestone_title }}.md).
+          For more information, see the [changelog](https://github.com/deckhouse/deckhouse/blob/main/CHANGELOG/CHANGELOG-${{ steps.changelog.outputs.minor_version }}.md) and minor version [release changes](https://github.com/deckhouse/deckhouse/releases/tag/${{ steps.changelog.outputs.minor_version }}.0).
         labels: changelog, auto, status/backport
         token: ${{ inputs.token }}
         delete-branch: true
