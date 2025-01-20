@@ -68,7 +68,7 @@ sleep 5
 
 # Merge the pull request
 echo "Merging the pull request..."
-gh pr merge "$branch_name" --merge --delete-branch
+gh pr merge "$branch_name" --squash --delete-branch
 check_error "Failed to merge pull request and delete branch."
 
 echo "Pull request merged and branch deleted."
