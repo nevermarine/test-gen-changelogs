@@ -1,5 +1,5 @@
 #!/bin/bash
-milestone="v1.5.0"
+milestone="v1.6.0"
 
 # Function to check for errors and exit if any occur
 check_error() {
@@ -52,7 +52,7 @@ section: core
 type: fix
 summary: add made up fix
 ```
-' --base main --head "$branch_name"
+' --base main --head "$branch_name" --label 'status/backport'
 check_error "Failed to create pull request."
 
 echo "Pull request created for branch $branch_name."
