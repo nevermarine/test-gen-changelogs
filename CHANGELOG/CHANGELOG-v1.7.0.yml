@@ -1,0 +1,5 @@
+core:
+  fixes:
+    - summary: add made up fix
+      pull_request: https://github.com/nevermarine/test-gen-changelogs/pull/71
+
