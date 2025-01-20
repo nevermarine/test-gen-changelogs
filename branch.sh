@@ -1,5 +1,5 @@
 #!/bin/bash
-milestone="v1.4.0"
+milestone="v1.5.0"
 
 # Function to check for errors and exit if any occur
 check_error() {
