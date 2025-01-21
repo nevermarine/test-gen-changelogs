@@ -58,7 +58,8 @@ section: core
 type: fix
 summary: add made up fix
 ```
-' --base main --head "$branch_name" --label 'status/backport'
+' --base main --head "$branch_name" 
+# --label 'status/backport'
 check_error "Failed to create pull request."
 
 echo "Pull request created for branch $branch_name."
