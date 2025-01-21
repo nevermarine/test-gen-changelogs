@@ -1,5 +1,11 @@
 #!/bin/bash
-milestone="v1.7.0"
+
+# milestone="v1.7.0"
+
+if [ -z "${milestone}" ]; then
+    echo 'Set $milestone var'
+    exit 1
+fi
 
 # Function to check for errors and exit if any occur
 check_error() {
