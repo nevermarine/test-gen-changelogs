@@ -1,0 +1,11 @@
+core:
+  fixes:
+    - summary: add made up fix
+      pull_request: https://github.com/nevermarine/test-gen-changelogs/pull/83
+    - summary: add made up fix
+      pull_request: https://github.com/nevermarine/test-gen-changelogs/pull/81
+    - summary: add made up fix
+      pull_request: https://github.com/nevermarine/test-gen-changelogs/pull/79
+    - summary: add made up fix
+      pull_request: https://github.com/nevermarine/test-gen-changelogs/pull/77
+
