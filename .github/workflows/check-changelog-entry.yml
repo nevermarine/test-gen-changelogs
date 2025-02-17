@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.5.2
       - name: Check Changelog entry
-        uses: deckhouse/changelog-action@test-action
+        uses: deckhouse/changelog-action@be2e996f705c17474816178fc0d59a5039bf7774
         with:
           token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
           repo: ${{ github.repository }}
