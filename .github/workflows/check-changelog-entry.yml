@@ -1,0 +1,52 @@
+name: Check Changelog entry
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, milestoned, demilestoned]
+
+# Cancel in-progress jobs for the same PR (pull_request_target event) or for the same branch (push event).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changelog:
+    name: Milestone Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+      - name: Check Changelog entry
+        uses: deckhouse/changelog-action@v2
+        with:
+          token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
+          repo: ${{ github.repository }}
+          milestone: v0.0.0
+          check: true
+          # section:forced_impact_level
+          allowed_sections: |
+            api
+            vm
+            vmop
+            vmbda
+            vmclass
+            vmip
+            vmipl
+            vdsnapshot
+            vmsnapshot
+            vmrestore
+            disks
+            vd
+            images
+            vi
+            cvi
+            core
+            api-service
+            vm-route-forge
+            kubevirt
+            kube-api-rewriter
+            cdi
+            dvcr
+            module
+            observability
+
