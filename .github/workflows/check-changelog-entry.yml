@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   changelog:
-    name: Milestone Changelog
+    name: Check Changelog entry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,7 +21,7 @@ jobs:
         with:
           token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
           repo: ${{ github.repository }}
-          milestone: v0.0.0
+          # milestone: v1.9.0
           check: true
           # section:forced_impact_level
           allowed_sections: |
