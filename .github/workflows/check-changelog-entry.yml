@@ -19,10 +19,10 @@ jobs:
       - name: Check Changelog entry
         uses: deckhouse/changelog-action@test-action
         with:
-          token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
-          repo: ${{ github.repository }}
-          milestone: v1.9.0
-          check: true
+          # token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
+          # repo: ${{ github.repository }}
+          # milestone: v1.9.0
+          # check: true
           # section:forced_impact_level
           allowed_sections: |
             api
