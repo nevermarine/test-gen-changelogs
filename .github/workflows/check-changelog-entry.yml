@@ -52,5 +52,6 @@ jobs:
             module
             observability
       - name: Echo status
-        run: echo "Status of changelog entry: ${{ steps.entry-check.outputs.isValidChangelogEntry }}"
+        run: |
+          echo "Status of changelog entry: ${{ steps.entry-check.outputs.isValidChangelogEntry }}"
 
