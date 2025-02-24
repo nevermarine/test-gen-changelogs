@@ -11,13 +11,13 @@ concurrency:
 
 jobs:
   changelog:
-    continue-on-error: true
     name: Check Changelog entry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
       - name: Check Changelog entry
+        continue-on-error: true
         id: entry-check
         uses: deckhouse/changelog-action@test-action
         with:
