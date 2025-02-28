@@ -59,7 +59,7 @@ jobs:
           bash d8-install.sh
 
       - run: |
-          echo "${KUBECONFIGS}" | jq ${{inputs.username}} > kube.cfg
+          echo "${KUBECONFIGS}" | jq -r --arg USERNAME ${{inputs.username}} '.[] | select(.user == $USERNAME) | .kubeconfig' > kube.cfg
         env:
           KUBECONFIGS: "${{ secrets.K8S_CLUSTER_SECRET }}"
 
@@ -76,8 +76,8 @@ jobs:
       
       - name: Test run string
         run: |
-          kubectl get nodes
-          kubectl get po -A
+          d8 k get nodes
+          d8 k get po -A
 
       # - name: Run E2E
       #   id: e2e-tests
