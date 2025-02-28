@@ -68,11 +68,11 @@ jobs:
           method: kubeconfig
           kubeconfig: ./kube.cfg
 
-      - name: Download dependencies
-        working-directory: ./tests/e2e/
-        run: |
-          echo "Download dependencies"
-          go mod download
+      # - name: Download dependencies
+      #   working-directory: ./tests/e2e/
+      #   run: |
+      #     echo "Download dependencies"
+      #     go mod download
       
       - name: Test run string
         run: |
