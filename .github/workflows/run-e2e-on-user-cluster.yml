@@ -58,15 +58,20 @@ jobs:
           curl -fsSL -o d8-install.sh https://raw.githubusercontent.com/deckhouse/deckhouse-cli/main/d8-install.sh
           bash d8-install.sh
 
-      - run: |
+      - name: Extract kubeconfig
+        run: |
           KUBECONFIG=$(echo "${KUBECONFIGS}" | jq -r --arg USERNAME ${{inputs.username}} '.[] | select(.user == $USERNAME) | .kubeconfig')
-          echo ${KUBECONFIG} | sed 's/^ */::add-mask::/'
           echo "KUBECONFIG_DATA<<EOF" >> $GITHUB_ENV
           echo "${KUBECONFIG}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          
         env:
           KUBECONFIGS: "${{ secrets.K8S_CLUSTER_SECRET }}"
+      
+      - name: Mask kubeconfig
+        run: |
+          while read -r line; do
+           echo "::add-mask::${line}"
+          done <<< "${{ env.KUBECONFIG_DATA }}"
 
       - uses: azure/k8s-set-context@v4
         with:
