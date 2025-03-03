@@ -24,12 +24,11 @@ jobs:
           # token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
           # repo: ${{ github.repository }}
           # milestone: v1.9.0
-          validateOnly: true
+          validate_only: true
           # section:forced_impact_level
           allowed_sections: |
             api
-            vm
-            vmop
+            vm vmop
             vmbda
             vmclass
             vmip
@@ -53,5 +52,5 @@ jobs:
             observability
       - name: Echo status
         run: |
-          echo "Status of changelog entry: ${{ steps.entry-check.outputs.isValidChangelogEntry }}"
+          echo "Status of changelog entry: ${{ steps.entry-check.outputs.is_valid_changelog_entry }}"
 
