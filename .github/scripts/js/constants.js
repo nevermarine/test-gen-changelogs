@@ -25,6 +25,10 @@ const labels = {
 
 };
 module.exports.knownLabels = labels;
+const userClusterLables = {
+  'e2e/user/nevermarine' : { type: 'e2e-user', user: 'nevermarine'}
+};
+module.exports.userClusterLabels = userClusterLables;
 
 // Label to detect if issue is a release issue.
 const releaseIssueLabel = 'issue/release';

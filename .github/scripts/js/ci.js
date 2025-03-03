@@ -13,7 +13,8 @@
 //
 const {
   knownLabels,
-  skipE2eLabel
+  skipE2eLabel,
+  userClusterLabels
 } = require('./constants');
 
 const e2eStatus = require('./e2e-commit-status');
@@ -72,6 +73,9 @@ const reactToComment = async ({github, context, comment_id, content}) => {
 };
 module.exports.reactToComment = reactToComment;
   
+const chooseUserCluster = async ({ github, context, core}) => {
+
+}
 /**
  * Start workflow using workflow_dispatch event.
  *
@@ -126,6 +130,16 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
   const prNumber = context.payload.pull_request.number;
   const prLabels = context.payload.pull_request.labels;
 
+  const matchingUserClusterLabels = prLabels
+    .map(l => l.name)
+    .filter(labelName => userClusterLabels[labelName]);
+
+  if (matchingUserClusterLabels.length === 0) {
+    return core.info('No user cluster labels found in PR');
+  } else if (matchingUserClusterLabels.length > 1) {
+    return core.setFailed(`Error: PR has multiple user cluster labels: ${matchingUserClusterLabels.join(', ')}`);
+  }
+
   core.startGroup(`Dump context`);
   core.info(`Git ref for workflows: ${ref}`);
   core.info(`PR number: ${prNumber}`);
@@ -169,41 +183,6 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
       // Workflow will remove label from PR, ignore 'unlabeled' action.
       command.workflows = [`deploy-web-${labelInfo.env}.yml`];
       command.triggerWorkflowDispatch = true;
-    }
-    if (labelType === 'ok-to-test') {
-      command.workflows = ['build-and-test_dev.yml', 'validation.yml'];
-      command.rerunWorkflow = true;
-    }
-    // Rerun build workflow if edition label is added or all edition labels are removed.
-    if (labelType === 'edition') {
-      // Gather other edition labels on PR.
-      let removeEditions = [];
-      prLabels.map((l) => {
-        const info = knownLabels[l.name];
-        if (info && info.type === 'edition' && l.name !== label) {
-          removeEditions.push(l.name);
-        }
-      });
-
-      if (event.action === 'labeled' && removeEditions.length > 0) {
-        // If edition/ce label is set, edition/ee label should be removed and vice versa.
-        for (const edition of removeEditions) {
-          core.notice(`Remove label '${edition}' from PR#${prNumber}`);
-          await removeLabel({ github, context, core, issue_number, label: edition });
-        }
-      }
-
-      // Re-run workflow if labeled with edition label or no edition labels left on PR.
-      if (event.action === 'labeled' || (event.action === 'unlabeled' && removeEditions.length === 0)) {
-        command.workflows = ['build-and-test_dev.yml'];
-        command.rerunWorkflow = true;
-      }
-    }
-    if (labelType === 'security') {
-      if (labelInfo.security === 'rootless' && event.action === 'labeled') {
-        command.workflows = ['build-and-test_dev.yml'];
-        command.rerunWorkflow = true;
-      }
     }
   } finally {
     core.endGroup();
@@ -276,8 +255,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
         workflow_id,
         ref: 'refs/heads/main',
         inputs: {
-          ...commentInfo,
-          ...prInfo
+          user: matchingUserClusterLabels.user
         }
       });
     } catch (error) {
