@@ -59,14 +59,19 @@ jobs:
           bash d8-install.sh
 
       - run: |
-          echo "${KUBECONFIGS}" | jq -r --arg USERNAME ${{inputs.username}} '.[] | select(.user == $USERNAME) | .kubeconfig' > kube.cfg
+          KUBECONFIG=$(echo "${KUBECONFIGS}" | jq -r --arg USERNAME ${{inputs.username}} '.[] | select(.user == $USERNAME) | .kubeconfig')
+          echo "::add-mask::${KUBECONFIG}"
+          echo "KUBECONFIG_DATA<<EOF" >> $GITHUB_ENV
+          echo "${KUBECONFIG}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
         env:
           KUBECONFIGS: "${{ secrets.K8S_CLUSTER_SECRET }}"
 
       - uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
-          kubeconfig: ./kube.cfg
+          kubeconfig: ${{ env.KUBECONFIG_DATA }}
 
       # - name: Download dependencies
       #   working-directory: ./tests/e2e/
