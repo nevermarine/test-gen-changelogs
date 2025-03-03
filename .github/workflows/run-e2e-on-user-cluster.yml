@@ -60,7 +60,7 @@ jobs:
 
       - run: |
           KUBECONFIG=$(echo "${KUBECONFIGS}" | jq -r --arg USERNAME ${{inputs.username}} '.[] | select(.user == $USERNAME) | .kubeconfig')
-          echo "::add-mask::${KUBECONFIG}"
+          echo ${KUBECONFIG} | sed 's/^ */::add-mask::/'
           echo "KUBECONFIG_DATA<<EOF" >> $GITHUB_ENV
           echo "${KUBECONFIG}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
