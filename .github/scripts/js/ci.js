@@ -254,6 +254,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
       };
 
       core.debug(`Pull request info: ${JSON.stringify(prInfo)}`);
+      core.info(`Username: ${matchingUserClusterLabels.user}`);
       await startWorkflow({
         github,
         context,
