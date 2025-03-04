@@ -232,7 +232,7 @@ jobs:
         uses: dorny/paths-filter@v2
         id: changes
         with:
-          token: ${{ secrets.BOATSWAIN_GITHUB_TOKEN }}
+          token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
           # dangerous - detect if changes not allowed to test for external PRs
           # docs - detect changes in files that belong to the documentation scope
           # not_markdown - detect changes not in markdown files
