@@ -138,6 +138,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
   const matchingUserClusterLabels = prLabels
     .map(l => l.name)
     .filter(labelName => userClusterLabels[labelName]);
+  core.info(`Matching user cluster labels: ${matchingUserClusterLabels}`);
 
   if (matchingUserClusterLabels.length === 0) {
     return core.info('No user cluster labels found in PR');
