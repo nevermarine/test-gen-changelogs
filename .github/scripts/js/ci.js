@@ -260,7 +260,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
         workflow_id,
         ref: 'refs/heads/main',
         inputs: {
-          user: matchingUserClusterLabels.user
+          username: matchingUserClusterLabels.user
         }
       });
     } catch (error) {
