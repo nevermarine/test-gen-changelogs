@@ -18,6 +18,11 @@ const {
 } = require('./constants');
 
 const e2eStatus = require('./e2e-commit-status');
+
+const {
+  commentLabelRecognition,
+} = require('./comments');
+
 /* 
  * this file contains only 3 functions from the original ci.js: 
  * extractCommandFromComment, reactToComment, startWorkflow.
