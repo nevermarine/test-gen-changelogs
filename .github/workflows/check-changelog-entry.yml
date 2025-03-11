@@ -19,7 +19,7 @@ jobs:
       - name: Check Changelog entry
         continue-on-error: true
         id: entry-check
-        uses: deckhouse/changelog-action@test-action
+        uses: deckhouse/changelog-action@v2.3.0
         with:
           # token: ${{ secrets.CHANGELOG_ACCESS_TOKEN }}
           # repo: ${{ github.repository }}
