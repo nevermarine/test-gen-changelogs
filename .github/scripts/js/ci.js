@@ -135,13 +135,18 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
   const prNumber = context.payload.pull_request.number;
   const prLabels = context.payload.pull_request.labels;
 
-  const matchingUserClusterLabels = prLabels
+  let matchingUserClusterLabels = prLabels
     .map(l => l.name)
     .filter(labelName => userClusterLabels[labelName]);
   core.info(`Matching user cluster labels: ${matchingUserClusterLabels}`);
 
   if (matchingUserClusterLabels.length === 0) {
-    return core.info('No user cluster labels found in PR');
+    core.info('No user cluster labels found in PR, using cluster of PR author');
+    const user = context.payload.pull_request.user.login;
+    core.info(`User: ${user}`);
+    const userClusterLabel = userClusterLabels[user];
+    core.info(`User cluster label: ${userClusterLabel}`);
+    matchingUserClusterLabels = [userClusterLabel];
   } else if (matchingUserClusterLabels.length > 1) {
     return core.setFailed(`Error: PR has multiple user cluster labels: ${matchingUserClusterLabels.join(', ')}`);
   }
