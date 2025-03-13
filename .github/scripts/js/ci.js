@@ -132,20 +132,18 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
   const prNumber = context.payload.pull_request.number;
   const prLabels = context.payload.pull_request.labels;
 
-  let matchingUserClusterLabels = prLabels
-    .map(l => l.name)
+  let userLabelsInPR = prLabels
+    .map(label => label.name)
     .filter(labelName => userClusterLabels[labelName]);
-  core.info(`Matching user cluster labels: ${matchingUserClusterLabels}`);
+  core.info(`Found user labels in PR: ${userLabelsInPR}`);
 
-  if (matchingUserClusterLabels.length === 0) {
-    core.info('No user cluster labels found in PR, using cluster of PR author');
-    const user = context.payload.pull_request.user.login;
-    core.info(`User: ${user}`);
-    const userClusterLabel = userClusterLabels['e2e/user/' + user];
-    core.info(`User cluster label: ${userClusterLabel}`);
-    matchingUserClusterLabels = [userClusterLabel];
-  } else if (matchingUserClusterLabels.length > 1) {
-    return core.setFailed(`Error: PR has multiple user cluster labels: ${matchingUserClusterLabels.join(', ')}`);
+  if (userLabelsInPR.length === 0) {
+    core.info('No user labels found in PR, using PR author\'s cluster');
+    const prAuthor = context.payload.pull_request.user.login;
+    core.info(`PR author: ${prAuthor}`);
+    userLabelsInPR = 'e2e/user/' + prAuthor;
+  } else if (userLabelsInPR.length > 1) {
+    return core.setFailed(`Error: PR has multiple user labels: ${userLabelsInPR.join(', ')}`);
   }
 
   core.startGroup(`Dump context`);
@@ -256,7 +254,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
       };
 
       core.debug(`Pull request info: ${JSON.stringify(prInfo)}`);
-      core.info(`Username: ${matchingUserClusterLabels.user}`);
+      core.info(`Username: ${userLabelsInPR.user}`);
       await startWorkflow({
         github,
         context,
@@ -264,7 +262,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
         workflow_id,
         ref: 'refs/heads/main',
         inputs: {
-          username: userClusterLabels[matchingUserClusterLabels].user
+          username: userClusterLabels[userLabelsInPR].user
         }
       });
     } catch (error) {
