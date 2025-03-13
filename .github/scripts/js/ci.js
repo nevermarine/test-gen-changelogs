@@ -78,9 +78,6 @@ const reactToComment = async ({github, context, comment_id, content}) => {
 };
 module.exports.reactToComment = reactToComment;
   
-const chooseUserCluster = async ({ github, context, core}) => {
-
-}
 /**
  * Start workflow using workflow_dispatch event.
  *
@@ -144,7 +141,7 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
     core.info('No user cluster labels found in PR, using cluster of PR author');
     const user = context.payload.pull_request.user.login;
     core.info(`User: ${user}`);
-    const userClusterLabel = userClusterLabels[user];
+    const userClusterLabel = userClusterLabels['e2e/user/' + user];
     core.info(`User cluster label: ${userClusterLabel}`);
     matchingUserClusterLabels = [userClusterLabel];
   } else if (matchingUserClusterLabels.length > 1) {
