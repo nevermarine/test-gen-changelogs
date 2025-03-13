@@ -145,9 +145,9 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
     core.info('No user labels found in PR, using PR author\'s cluster');
     const prAuthor = context.payload.pull_request.user.login;
     core.info(`PR author: ${prAuthor}`);
-    userLabelsInPR = 'e2e/user/' + prAuthor;
+    const authorLabel = [{'name': `e2e/user/${prAuthor}`}];
     // retry check for PR author's cluster label
-    userLabelsInPR = await checkUserClusterLabel({github, context, core, prLabels});
+    userLabelsInPR = await checkUserClusterLabel({github, context, core, prLabels: authorLabel});
     if (userLabelsInPR.length === 0) {
       return core.setFailed(`Error: PR author's cluster label not found`);
     }
