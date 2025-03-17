@@ -137,7 +137,6 @@ jobs:
 
               // Set outputs.
               core.setCommandEcho(true)
-              core.setOutput('should_check', shouldCheckFiles.toString());
               core.setOutput('ref', ref);
               core.setOutput('ref_slug', `pr${pr.number}`);
               core.setOutput('edition', edition);
