@@ -243,12 +243,6 @@ module.exports.runWorkflowForPullRequest = async ({ github, context, core, ref }
         return core.setFailed(`Error commenting PR#${prNumber}: ${JSON.stringify(response)}`);
       }
 
-      const commentInfo = {
-        issue_id: '' + context.payload.pull_request.id,
-        issue_number: '' + prNumber,
-        comment_id: '' + response.data.id
-      };
-
       // Triggering workflow_dispatch requires a ref to checkout workflows.
       // We use refs/heads/main for workflows and pass refs/pulls/head/NUM in
       // pull_request_ref field to checkout PR content.
